@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -10,15 +10,13 @@
 body { 
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     margin:0; padding:0; background:#f0f0f0; 
-    overflow: hidden; 
+    overflow: hidden; /* Mặc định ẩn scroll cho PC */
     height: 100vh; 
     height: 100dvh; 
 }
 
 /* --- NÚT BẤM TRÊN IOS/MOBILE --- */
-button {
-    -webkit-appearance: none; appearance: none; touch-action: manipulation;
-}
+button { -webkit-appearance: none; appearance: none; touch-action: manipulation; }
 
 header { 
     padding:5px 10px; background:#3498db; color:white; text-align:center; height: 40px; display: flex; align-items: center; justify-content: center;
@@ -26,7 +24,7 @@ header {
 h1 { margin:0; font-size:1.1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .main { display:flex; flex-direction:column; height: calc(100vh - 40px); height: calc(100dvh - 40px); }
 
-/* ------------------- Bố cục chính Grid ------------------- */
+/* ------------------- Bố cục chính Grid (PC) ------------------- */
 .pos-layout {
     display: grid;
     grid-template-columns: 2.8fr 1.4fr 1.8fr; 
@@ -123,9 +121,8 @@ h1 { margin:0; font-size:1.1em; white-space: nowrap; overflow: hidden; text-over
     flex: 0 0 auto; min-height: 30px; display: flex; align-items: center; justify-content: center;
 }
 
-/* CSS cho nút chọn món */
 .menu-item .sizes { 
-    display: grid; grid-template-columns: 1fr; /* Mặc định 1 cột (do bỏ size L) */
+    display: grid; grid-template-columns: 1fr; 
     gap: 3px; width: 100%; flex: 1 1 auto; 
 } 
 
@@ -141,7 +138,6 @@ h1 { margin:0; font-size:1.1em; white-space: nowrap; overflow: hidden; text-over
 .menu-item .sizes button:active { background: rgba(0,0,0,0.7); }
 .menu-item .sizes button span.price { font-size: 0.9em; color: #fff; margin-top: 2px; }
 
-/* Nút Up Size đặc biệt */
 .btn-upsize { background: linear-gradient(45deg, #2c3e50, #34495e) !important; font-size: 1em !important; color: #f1c40f !important; border: 1px dashed #f1c40f !important;}
 
 /* --- MÀU SẮC THEO NHÓM MÓN --- */
@@ -170,44 +166,38 @@ h1 { margin:0; font-size:1.1em; white-space: nowrap; overflow: hidden; text-over
 .btn-danger { background: #e74c3c; color: white; padding:10px 15px; border:none; border-radius:5px; font-size: 16px;}
 
 /* ================== MOBILE OPTIMIZATION ================== */
-@media (orientation: portrait) {
+@media (orientation: portrait), (max-width: 768px) {
     body { overflow: auto; height: auto; min-height: 100vh; }
-    .main { height: auto; }
+    .main { height: auto; display: block; }
     .pos-layout { 
         display: flex; flex-direction: column; 
-        height: auto; overflow-y: visible; padding-bottom: 20px;
+        height: auto; 
+        overflow: visible; 
+        padding-bottom: 80px; /* Chừa chỗ cho nút bên dưới */
     }
     .top-areas { 
         height: auto; min-height: 90px; padding: 10px 5px; 
         position: sticky; top: 0; z-index: 100;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        background: #fff;
+        order: 1;
     }
     .right-panel { 
-        order: 2; width: 100%; min-height: 200px; max-height: 300px;
+        order: 2; width: 100%; min-height: 150px; max-height: none;
         margin-bottom: 10px; 
     }
-    .menu-section-drinks { order: 3; overflow-y: visible; max-height: none; }
-    .menu-section-fried { order: 4; overflow-y: visible; max-height: none; }
+    .menu-section-drinks { order: 3; overflow-y: visible; height: auto; max-height: none; margin-bottom: 10px;}
+    .menu-section-fried { order: 4; overflow-y: visible; height: auto; max-height: none; }
 
     .bottom-controls { 
         order: 5; flex-direction: row; 
         position: fixed; bottom: 0; left: 0; width: 100%;
         padding: 10px; background: #fff; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
         z-index: 200; gap: 10px;
+        height: 60px;
         padding-bottom: env(safe-area-inset-bottom, 10px); 
     }
-    .bottom-controls button { padding: 12px; }
-    .pos-layout { padding-bottom: 80px; }
-}
-@media (orientation: landscape) and (max-height: 600px) {
-    header { font-size: 0.8em; padding: 2px; height: 30px; }
-    h1 { font-size: 1em; }
-    .main { height: calc(100vh - 30px); height: calc(100dvh - 30px); }
-    .pos-layout { grid-template-rows: 70px auto 45px; padding: 5px; gap: 5px; padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
-    .menu-item { min-height: 100px; }
-    .menu-item .name { font-size: 0.75em; min-height: 25px; }
-    .btn-table { min-width: 70px; min-height: 55px; font-size: 0.75em; }
-    .bottom-controls button { font-size: 0.8em; padding: 0 5px; }
+    .bottom-controls button { padding: 0; height: 40px; }
 }
 </style>
 </head>
@@ -247,42 +237,18 @@ h1 { margin:0; font-size:1.1em; white-space: nowrap; overflow: hidden; text-over
 <script>
 const tablesList = Array.from({length: 12}, (_, i) => `Bàn ${i + 1}`);
 
-// --- DỮ LIỆU LỢI NHUẬN TỪ HÌNH ẢNH ---
+// --- DỮ LIỆU LỢI NHUẬN ---
 const profitData = {
-    "Mỳ trộn 20k": 7309,
-    "Mỳ trộn 15k": 5515,
-    "Sữa chua đánh đá": 9083,
-    "Sữa chua Việt quất": 7363,
-    "Sữa chua Chanh dây": 7683,
-    "Sữa chua Xoài": 7683,
-    "Sữa chua Dâu": 7883,
-    "Sữa tươi TC đường đen": 9361,
-    "Khoai môn sữa dừa": 12638,
-    "Latte Việt quất": 8753,
-    "Latte Dâu": 10153,
-    "Khoai môn Latte": 10523,
-    "Matcha Latte": 10813,
-    "Ca cao sữa nóng": 10807,
-    "Cà phê muối": 5985,
-    "Nâu lắc": 6050,
-    "Trà tắc": 4903,
-    "Trà chanh": 4903,
-    "Jerry": 3593,
-    "Chân mèo": 1975,
-    "Bánh flan": 4437,
-    "Topping khác": 0, 
-    "Cá viên": 1263,
-    "Hải sản sốt": 1250,
-    "HS tẩm cốm": 876,
-    "Tôm hình": 1044,
-    "Nem chua rán": 1867,
-    "Khoai lệ phố": 1867,
-    "Xúc xích": 5400,
-    "Dồi sụn": 5400,
-    "Phô mai que": 4400,
-    "Khoai tây lắc PM": 10000,
-    "UP SIZE": 2500,
-    // Các món trà sữa có nhiều mức giá tùy size/option
+    "Mỳ trộn 20k": 7309, "Mỳ trộn 15k": 5515, "Sữa chua đánh đá": 9083,
+    "Sữa chua Việt quất": 7363, "Sữa chua Chanh dây": 7683, "Sữa chua Xoài": 7683,
+    "Sữa chua Dâu": 7883, "Sữa tươi TC đường đen": 9361, "Khoai môn sữa dừa": 12638,
+    "Latte Việt quất": 8753, "Latte Dâu": 10153, "Khoai môn Latte": 10523,
+    "Matcha Latte": 10813, "Ca cao sữa nóng": 10807, "Cà phê muối": 5985,
+    "Nâu lắc": 6050, "Trà tắc": 4903, "Trà chanh": 4903, "Jerry": 3593,
+    "Chân mèo": 1975, "Bánh flan": 4437, "Topping khác": 0, 
+    "Cá viên": 1263, "Hải sản sốt": 1250, "HS tẩm cốm": 876, "Tôm hình": 1044,
+    "Nem chua rán": 1867, "Khoai lệ phố": 1867, "Xúc xích": 5400,
+    "Dồi sụn": 5400, "Phô mai que": 4400, "Khoai tây lắc PM": 10000, "UP SIZE": 2500,
     "Trà sữa Truyền thống": { "Trân châu": 6482, "Fulltopping": 11801, "Sốt PM Dẻo": 12759 },
     "Trà sữa Thái xanh": { "Trân châu": 6849, "Fulltopping": 12168, "Sốt PM Dẻo": 13127 },
     "Trà sữa Olong": { "Trân châu": 6439, "Fulltopping": 11758, "Sốt PM Dẻo": 12717 },
@@ -312,48 +278,57 @@ const menuData = [
     { cat: "cat-tra", name: "Trà chanh", opts: [{s:"M",p:13000}] },
 ];
 
-const toppings = [
-    {name:"Jerry",price:7000},
-    {name:"Chân mèo",price:6000},
-    {name:"Bánh flan",price:7000}, 
-    {name:"Topping khác",price:5000} 
-];
+const toppings = [{name:"Jerry",price:7000},{name:"Chân mèo",price:6000},{name:"Bánh flan",price:7000},{name:"Topping khác",price:5000}];
+const friedItems = [{name:"Cá viên",price:3000},{name:"Hải sản sốt",price:3000},{name:"HS tẩm cốm",price:3000},{name:"Nem chua rán",price:5000},{name:"Khoai lệ phố",price:5000},{name:"Tôm hình",price:3000},{name:"Xúc xích",price:10000},{name:"Dồi sụn",price:10000},{name:"Phô mai que",price:10000}];
+const foodItems = [{name:"Mỳ trộn 15k", price:15000},{name:"Mỳ trộn 20k", price:20000},{name:"Khoai tây lắc PM", price:30000}];
 
-const friedItems = [
-    {name:"Cá viên",price:3000},
-    {name:"Hải sản sốt",price:3000},
-    {name:"HS tẩm cốm",price:3000},
-    {name:"Nem chua rán",price:5000},
-    {name:"Khoai lệ phố",price:5000},
-    {name:"Tôm hình",price:3000},
-    {name:"Xúc xích",price:10000},
-    {name:"Dồi sụn",price:10000},
-    {name:"Phô mai que",price:10000}
-];
+// --- XỬ LÝ DỮ LIỆU AN TOÀN (SAFE LOAD) ---
+let orders = {};
+let cumulativeLost = 0;
+let lostDetails = [];
 
-const foodItems = [
-    {name:"Mỳ trộn 15k", price:15000},
-    {name:"Mỳ trộn 20k", price:20000},
-    {name:"Khoai tây lắc PM", price:30000}
-];
+function safeLoadData() {
+    try {
+        const rawOrders = localStorage.getItem('orders');
+        orders = rawOrders ? JSON.parse(rawOrders) : {};
+        
+        // KIỂM TRA VÀ SỬA LỖI DỮ LIỆU CŨ (MIGRATE DATA)
+        [...tablesList, "T0"].forEach(t => {
+            if (!orders[t] || typeof orders[t] !== 'object') {
+                orders[t] = { items: [], paid: false, history: [], paidAmount: 0, unpaidLost: 0, lifetimeRevenue: 0 };
+            } else {
+                // Nếu thiếu trường nào thì bù trường đó vào để tránh lỗi NaN
+                if (!Array.isArray(orders[t].items)) orders[t].items = [];
+                if (!Array.isArray(orders[t].history)) orders[t].history = [];
+                if (typeof orders[t].paidAmount !== 'number') orders[t].paidAmount = 0;
+                if (typeof orders[t].lifetimeRevenue !== 'number') orders[t].lifetimeRevenue = 0;
+            }
+        });
 
-let orders=JSON.parse(localStorage.getItem('orders')) || {};
-let appHistory=[]; 
-let cumulativeLost = JSON.parse(localStorage.getItem('cumulativeLost')) || 0; 
-let lostDetails = JSON.parse(localStorage.getItem('lostDetails')) || [];
+        const rawLost = localStorage.getItem('cumulativeLost');
+        cumulativeLost = rawLost ? Number(JSON.parse(rawLost)) : 0;
+        if (isNaN(cumulativeLost)) cumulativeLost = 0;
 
-[...tablesList, "T0"].forEach(t=>{
-    if(!orders[t] || !orders[t].history) orders[t]={items:[],paid:false,history:[], paidAmount: 0, unpaidLost: 0, lifetimeRevenue: 0};
-});
+        const rawDetails = localStorage.getItem('lostDetails');
+        lostDetails = rawDetails ? JSON.parse(rawDetails) : [];
+        if (!Array.isArray(lostDetails)) lostDetails = [];
 
-let selected="T0"; 
+    } catch (e) {
+        console.error("Lỗi tải dữ liệu, đang reset:", e);
+        // Nếu lỗi quá nặng thì reset luôn để cứu app
+        orders = {};
+        [...tablesList, "T0"].forEach(t => orders[t] = { items: [], paid: false, history: [], paidAmount: 0, unpaidLost: 0, lifetimeRevenue: 0 });
+    }
+}
+safeLoadData(); // Chạy ngay khi mở app
+
+let appHistory = []; 
+let selected = "T0"; 
 
 function formatCurrency(amount) { 
-    try {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount); 
-    } catch (e) {
-        return amount.toLocaleString() + " đ";
-    }
+    if (amount === undefined || amount === null || isNaN(amount)) return "0 đ";
+    try { return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount); } 
+    catch (e) { return amount.toLocaleString() + " đ"; }
 }
 
 function showModal(title, bodyHTML, buttonsHTML = null) {
@@ -367,14 +342,14 @@ function closeModal(event) { if (event.target === document.getElementById('myMod
 function renderTables(){
   function createBtn(t){
     const isTemp = (t === "T0");
-    const currentTotal=orders[t].items.reduce((s,i)=>s+i.price*i.qty,0);
+    const currentTotal = orders[t].items.reduce((s,i)=>s+i.price*i.qty,0);
     const needToPay = currentTotal - orders[t].paidAmount;
     
     let btnClass = "btn-empty";
     if (isTemp) {
         btnClass = "btn-temp"; 
     } else {
-        if(currentTotal > 0) btnClass = (orders[t].paidAmount > 0 ? "btn-paid" : "btn-active");
+        if(currentTotal > 0) btnClass = (orders[t].paidAmount >= currentTotal ? "btn-paid" : "btn-active");
     }
     
     const btn=document.createElement("button");
@@ -425,7 +400,7 @@ function updateNote(){
   let html=`<h3>${selected === "T0" ? "Đơn tạm" : selected}</h3>`;
   
   html+=`<strong>Tổng:</strong> ${formatCurrency(currentTotal)} | <strong>Đã TT:</strong> <span style="color:#3498db;">${formatCurrency(o.paidAmount)}</span><br>`;
-  html+=`<strong>Còn thiếu:</strong> <span style="color:#e74c3c; font-weight:bold; font-size:1.2em;">${formatCurrency(needToPay)}</span><br><hr>`;
+  html+=`<strong>Còn thiếu:</strong> <span style="color:#e74c3c; font-weight:bold; font-size:1.2em;">${formatCurrency(needToPay > 0 ? needToPay : 0)}</span><br><hr>`;
   
   if(o.items.length===0) html+="Chưa có món<br>";
   else o.items.forEach((i, index)=>{
@@ -456,9 +431,7 @@ function renderMenu(){
     const div=document.createElement("div");
     div.className=`menu-item ${item.cat}`;
     let btnHtml = "";
-    
     if(item.opts.length > 1) div.querySelector('.sizes')?.setAttribute('style', 'grid-template-columns: 1fr 1fr');
-
     item.opts.forEach(opt => {
         const sizeLabel = (item.opts.length === 1 && opt.s === "M") ? "" : opt.s;
         btnHtml += `<button onclick="addItem('${item.name}', ${opt.p}, '${opt.s}')">${sizeLabel}<span class="price">${opt.p/1000}k</span></button>`;
@@ -475,7 +448,6 @@ function renderMenu(){
 
   const friedDiv=document.getElementById("fried");
   friedDiv.innerHTML=``; 
-  
   friedDiv.innerHTML += `<div class="menu-subtitle">Topping</div><div class="menu-grid" id="grid-topping"></div>`;
   const toppingGrid = friedDiv.querySelector("#grid-topping");
   toppings.forEach(f=>{
@@ -601,9 +573,13 @@ function saveHistory(){
 
 function undo(){
   if(appHistory.length===0) return showModal("Thông báo", "Không thể hoàn tác.");
-  const state = JSON.parse(appHistory.pop());
-  orders = state.orders; cumulativeLost = state.cumulativeLost || 0; lostDetails = state.lostDetails || [];
-  saveData(); renderTables(); updateNote();
+  try {
+      const state = JSON.parse(appHistory.pop());
+      orders = state.orders; cumulativeLost = state.cumulativeLost || 0; lostDetails = state.lostDetails || [];
+      saveData(); renderTables(); updateNote();
+  } catch(e) {
+      console.log("Undo failed");
+  }
 }
 
 function resetAll(){
@@ -616,29 +592,23 @@ function resetAll(){
   }
 }
 
-// --- HÀM TÍNH TOÁN LỢI NHUẬN ---
 function getProfit(name, size) {
     if (profitData[name]) {
-        // Nếu tên món có object con (như Trà sữa), tra cứu theo size
-        if (typeof profitData[name] === 'object') {
-            return profitData[name][size] || 0;
-        }
-        return profitData[name]; // Trả về giá trị trực tiếp
+        if (typeof profitData[name] === 'object') return profitData[name][size] || 0;
+        return profitData[name];
     }
-    // Trường hợp "UP SIZE" hoặc các món không có trong bảng
     if (name === "UP SIZE") return 2500;
-    return 0; // Mặc định nếu không tìm thấy
+    return 0;
 }
 
 function showStats(){
   let totalRevenue=0; 
-  let totalProfit=0; // Biến tổng lợi nhuận
+  let totalProfit=0; 
   let itemStats={};
   
   tablesList.forEach(t=>{
     totalRevenue += orders[t].lifetimeRevenue;
     orders[t].history.forEach(h=>{
-      // Tính lợi nhuận cho từng item lịch sử
       const p = getProfit(h.name, h.size);
       totalProfit += p * h.qty;
 
@@ -665,7 +635,6 @@ function showStats(){
       </table></div><hr>`;
   }
 
-  // Cập nhật nội dung hiển thị có thêm Lợi nhuận
   const statMsg = `<h3>THỐNG KÊ NGÀY</h3>
                    <p>Doanh Thu: <span style="font-size:1.2em; color:#2ecc71;">${formatCurrency(totalRevenue)}</span></p>
                    <p>Lợi Nhuận: <span style="font-size:1.2em; color:#e67e22; font-weight:bold;">${formatCurrency(totalProfit)}</span></p>
@@ -674,11 +643,18 @@ function showStats(){
   showModal("Thống kê", statMsg);
 }
 
-function saveData(){ localStorage.setItem('orders',JSON.stringify(orders)); localStorage.setItem('cumulativeLost',JSON.stringify(cumulativeLost)); localStorage.setItem('lostDetails',JSON.stringify(lostDetails)); }
+function saveData(){ 
+    try {
+        localStorage.setItem('orders',JSON.stringify(orders)); 
+        localStorage.setItem('cumulativeLost',JSON.stringify(cumulativeLost)); 
+        localStorage.setItem('lostDetails',JSON.stringify(lostDetails)); 
+    } catch (e) {
+        console.warn("Không thể lưu LocalStorage (có thể do chế độ ẩn danh hoặc mở file trực tiếp)");
+    }
+}
 
 // --- KHỞI CHẠY ---
 renderTables(); renderMenu(); updateNote();
 </script>
 </body>
-
 </html>
