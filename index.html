@@ -7,11 +7,11 @@
 <style>
 /* ------------------- Cấu trúc chung ------------------- */
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html { height: 100%; } /* Đảm bảo html luôn full chiều cao */
+html { height: 100%; } 
 body { 
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     margin:0; padding:0; background:#f0f0f0; 
-    overflow: hidden; /* Mặc định ẩn scroll cho PC */
+    overflow: hidden; 
     height: 100vh; 
     height: 100dvh; 
 }
@@ -168,7 +168,7 @@ h1 { margin:0; font-size:1.1em; white-space: nowrap; overflow: hidden; text-over
 
 /* ================== MOBILE OPTIMIZATION ================== */
 @media (orientation: portrait), (max-width: 768px) {
-    html, body { overflow-y: auto; height: auto; } /* SỬA LỖI: Cho phép cuộn trang tự nhiên trên Mobile */
+    html, body { overflow-y: auto; height: auto; }
     body { min-height: 100vh; position: relative; }
     
     .main { height: auto; display: block; }
@@ -176,7 +176,7 @@ h1 { margin:0; font-size:1.1em; white-space: nowrap; overflow: hidden; text-over
         display: flex; flex-direction: column; 
         height: auto; 
         overflow: visible; 
-        padding-bottom: 80px; /* Chừa chỗ cho nút bên dưới */
+        padding-bottom: 80px; 
     }
     .top-areas { 
         height: auto; min-height: 90px; padding: 10px 5px; 
@@ -252,7 +252,7 @@ const profitData = {
     "Cá viên": 1263, "Hải sản sốt": 1250, "HS tẩm cốm": 876, "Tôm hình": 1044,
     "Nem chua rán": 1867, "Khoai lệ phố": 1867, "Xúc xích": 5400,
     "Dồi sụn": 5400, "Phô mai que": 4400, "Khoai tây lắc PM": 12726, "UP SIZE": 2500,
-    "Cookie phô mai": 4806, // ĐÃ THÊM MỚI
+    "Cookie phô mai": 4806,
     "Trà sữa Truyền thống": { "Trân châu": 6482, "Fulltopping": 11801, "Sốt PM Dẻo": 12759 },
     "Trà sữa Thái xanh": { "Trân châu": 6849, "Fulltopping": 12168, "Sốt PM Dẻo": 13127 },
     "Trà sữa Olong": { "Trân châu": 6439, "Fulltopping": 11758, "Sốt PM Dẻo": 12717 },
@@ -288,29 +288,28 @@ const foodItems = [
     {name:"Mỳ trộn 15k", price:15000},
     {name:"Mỳ trộn 20k", price:20000},
     {name:"Khoai tây lắc PM", price:30000},
-    {name:"Cookie phô mai", price:15000} // ĐÃ THÊM MỚI
+    {name:"Cookie phô mai", price:15000}
 ];
 
 // --- XỬ LÝ DỮ LIỆU AN TOÀN (SAFE LOAD) ---
 let orders = {};
 let cumulativeLost = 0;
 let lostDetails = [];
+let salesLog = []; 
 
 function safeLoadData() {
     try {
         const rawOrders = localStorage.getItem('orders');
         orders = rawOrders ? JSON.parse(rawOrders) : {};
         
-        // KIỂM TRA VÀ SỬA LỖI DỮ LIỆU CŨ (MIGRATE DATA)
         [...tablesList, "T0"].forEach(t => {
             if (!orders[t] || typeof orders[t] !== 'object') {
-                orders[t] = { items: [], paid: false, history: [], paidAmount: 0, unpaidLost: 0, lifetimeRevenue: 0 };
+                orders[t] = { items: [], paid: false, paidAmount: 0 };
             } else {
-                // Nếu thiếu trường nào thì bù trường đó vào để tránh lỗi NaN
                 if (!Array.isArray(orders[t].items)) orders[t].items = [];
-                if (!Array.isArray(orders[t].history)) orders[t].history = [];
                 if (typeof orders[t].paidAmount !== 'number') orders[t].paidAmount = 0;
-                if (typeof orders[t].lifetimeRevenue !== 'number') orders[t].lifetimeRevenue = 0;
+                delete orders[t].history; 
+                delete orders[t].lifetimeRevenue;
             }
         });
 
@@ -322,14 +321,18 @@ function safeLoadData() {
         lostDetails = rawDetails ? JSON.parse(rawDetails) : [];
         if (!Array.isArray(lostDetails)) lostDetails = [];
 
+        const rawLog = localStorage.getItem('salesLog');
+        salesLog = rawLog ? JSON.parse(rawLog) : [];
+        if (!Array.isArray(salesLog)) salesLog = [];
+
     } catch (e) {
         console.error("Lỗi tải dữ liệu, đang reset:", e);
-        // Nếu lỗi quá nặng thì reset luôn để cứu app
         orders = {};
-        [...tablesList, "T0"].forEach(t => orders[t] = { items: [], paid: false, history: [], paidAmount: 0, unpaidLost: 0, lifetimeRevenue: 0 });
+        [...tablesList, "T0"].forEach(t => orders[t] = { items: [], paid: false, paidAmount: 0 });
+        salesLog = [];
     }
 }
-safeLoadData(); // Chạy ngay khi mở app
+safeLoadData();
 
 let appHistory = []; 
 let selected = "T0"; 
@@ -387,10 +390,8 @@ function selectTable(t){
       let exist=orders[t].items.find(i=>i.name===o.name && i.price===o.price && i.size===o.size);
       if(exist) exist.qty+=o.qty;
       else orders[t].items.push({...o});
-      orders[t].history.push({...o,time:new Date().toLocaleTimeString(), table:t});
     });
     orders["T0"].items = []; 
-    orders["T0"].history = [];
     orders["T0"].paidAmount = 0;
     saveData();
     selected = t;
@@ -441,12 +442,10 @@ function renderMenu(){
     div.className=`menu-item ${item.cat}`;
     let btnHtml = "";
     
-    // --- SỬA LỖI JS MOBILE: Thay thế Optional Chaining (?.) bằng if tiêu chuẩn ---
     const sizeContainer = div.querySelector('.sizes');
     if(item.opts.length > 1 && sizeContainer) {
         sizeContainer.setAttribute('style', 'grid-template-columns: 1fr 1fr');
     }
-    // --------------------------------------------------------------------------
 
     item.opts.forEach(opt => {
         const sizeLabel = (item.opts.length === 1 && opt.s === "M") ? "" : opt.s;
@@ -508,7 +507,6 @@ function addItem(name,price,size){
   if(exist) exist.qty+=1;
   else orders[selected].items.push({name,qty:1,price,size});
   
-  orders[selected].history.push({name,qty:1,price,size,time:new Date().toLocaleTimeString(), table:selected});
   orders[selected].paid = false; 
   saveData(); renderTables(); updateNote();
 }
@@ -538,7 +536,10 @@ function payFullAmount(t){
 function confirmPayment(t, amount){
     saveHistory();
     orders[t].paidAmount += amount; orders[t].paid = true;
-    showModal("Thành công", `Đã thu ${formatCurrency(amount)}.`);
+    
+    // --- SỬA ĐỔI: Tắt bảng thông báo ngay, không hiện "Thành công" nữa ---
+    document.getElementById('myModal').style.display = 'none';
+    
     saveData(); renderTables(); updateNote();
 }
 
@@ -565,9 +566,19 @@ function clearTableAction(t, amountPaid, isLost = false){
   saveHistory();
   if (t !== "T0") {
       orders[t].paidAmount += amountPaid;
-      orders[t].lifetimeRevenue += orders[t].paidAmount;
+      const currentItems = orders[t].items;
+      
+      // LOGIC CHUẨN: Chỉ khi KHÔNG thất thoát thì mới ghi vào Sổ Cái (Sales Log)
+      if (!isLost && currentItems.length > 0) {
+           const timeStr = new Date().toLocaleTimeString();
+           currentItems.forEach(item => {
+              salesLog.push({ ...item, table: t, time: timeStr });
+           });
+      }
+
+      // Xử lý thất thoát
       if (isLost) {
-        const currentTotal = orders[t].items.reduce((s,i)=>s+i.price*i.qty,0);
+        const currentTotal = currentItems.reduce((s,i)=>s+i.price*i.qty,0);
         const lostAmount = currentTotal - orders[t].paidAmount;
         if (lostAmount > 0) {
           cumulativeLost += lostAmount; 
@@ -577,33 +588,50 @@ function clearTableAction(t, amountPaid, isLost = false){
         }
       }
   }
-  orders[t].items=[]; orders[t].paid=false; orders[t].paidAmount=0; orders[t].unpaidLost = 0; 
+  
+  orders[t].items=[]; 
+  orders[t].paid=false; 
+  orders[t].paidAmount=0; 
+  
   document.getElementById('myModal').style.display='none';
   saveData(); renderTables(); updateNote();
 }
 
 function saveHistory(){ 
-  appHistory.push(JSON.stringify({orders, cumulativeLost, lostDetails})); 
+  appHistory.push(JSON.stringify({orders, cumulativeLost, lostDetails, salesLog})); 
   if (appHistory.length > 20) appHistory.shift(); 
 }
 
 function undo(){
-  if(appHistory.length===0) return showModal("Thông báo", "Không thể hoàn tác.");
+  if(appHistory.length === 0) return showModal("Thông báo", "Không thể hoàn tác.");
+  
+  const prevState = JSON.parse(appHistory[appHistory.length - 1]);
+  const currentSalesCount = salesLog.length;
+  const prevSalesCount = (prevState.salesLog || []).length;
+
+  // CẢNH BÁO AN TOÀN
+  if (currentSalesCount !== prevSalesCount) {
+      const confirmAction = confirm("⚠️ CẢNH BÁO: Bạn sắp HOÀN TÁC đơn ĐÃ THU TIỀN. Doanh thu sẽ bị trừ lại. Bạn có chắc không?");
+      if (!confirmAction) return; 
+  }
+
   try {
       const state = JSON.parse(appHistory.pop());
-      orders = state.orders; cumulativeLost = state.cumulativeLost || 0; lostDetails = state.lostDetails || [];
+      orders = state.orders; 
+      cumulativeLost = state.cumulativeLost || 0; 
+      lostDetails = state.lostDetails || [];
+      salesLog = state.salesLog || [];
+      
       saveData(); renderTables(); updateNote();
-  } catch(e) {
-      console.log("Undo failed");
-  }
+  } catch(e) { console.log("Undo failed", e); }
 }
 
 function resetAll(){
-  if(confirm("XÓA TOÀN BỘ DỮ LIỆU?")){
+  if(confirm("XÓA TOÀN BỘ DỮ LIỆU? (Doanh thu sẽ về 0)")){
     saveHistory(); 
     appHistory = []; 
-    cumulativeLost = 0; lostDetails = []; 
-    [...tablesList, "T0"].forEach(t=>orders[t]={items:[],paid:false,history:[], paidAmount: 0, unpaidLost: 0, lifetimeRevenue: 0});
+    cumulativeLost = 0; lostDetails = []; salesLog = []; 
+    [...tablesList, "T0"].forEach(t=>orders[t]={items:[], paid:false, paidAmount: 0});
     selected="T0"; saveData(); renderTables(); updateNote();
   }
 }
@@ -622,21 +650,19 @@ function showStats(){
   let totalProfit=0; 
   let itemStats={};
   
-  tablesList.forEach(t=>{
-    totalRevenue += orders[t].lifetimeRevenue;
-    orders[t].history.forEach(h=>{
-      const p = getProfit(h.name, h.size);
-      totalProfit += p * h.qty;
-
-      const key = h.name + (h.size && h.size !== 'M' ? ` (${h.size})` : '');
-      itemStats[key]=(itemStats[key]||{qty:0, revenue:0}); 
-      itemStats[key].qty+=h.qty; 
-      itemStats[key].revenue+=h.qty*h.price;
-    });
+  salesLog.forEach(h => {
+     totalRevenue += h.price * h.qty;
+     const p = getProfit(h.name, h.size);
+     totalProfit += p * h.qty;
+     const key = h.name + (h.size && h.size !== 'M' ? ` (${h.size})` : '');
+     itemStats[key] = (itemStats[key] || {qty:0, revenue:0}); 
+     itemStats[key].qty += h.qty; 
+     itemStats[key].revenue += h.qty * h.price;
   });
 
   let detailsHTML=`<div style="max-height:300px; overflow-y:auto;"><table class="stats-table" style="width:100%; border-collapse:collapse; text-align:left; font-size:0.9em;">
     <thead><tr style="background:#f2f2f2;"><th>Món</th><th>SL</th><th>Tiền</th></tr></thead><tbody>`;
+  
   Object.keys(itemStats).sort((a,b)=>itemStats[b].qty - itemStats[a].qty).forEach(k=>{
     detailsHTML+=`<tr><td>${k}</td><td>${itemStats[k].qty}</td><td>${formatCurrency(itemStats[k].revenue)}</td></tr>`;
   });
@@ -664,12 +690,10 @@ function saveData(){
         localStorage.setItem('orders',JSON.stringify(orders)); 
         localStorage.setItem('cumulativeLost',JSON.stringify(cumulativeLost)); 
         localStorage.setItem('lostDetails',JSON.stringify(lostDetails)); 
-    } catch (e) {
-        console.warn("Không thể lưu LocalStorage");
-    }
+        localStorage.setItem('salesLog', JSON.stringify(salesLog));
+    } catch (e) { console.warn("Không thể lưu LocalStorage"); }
 }
 
-// --- KHỞI CHẠY ---
 renderTables(); renderMenu(); updateNote();
 </script>
 </body>
