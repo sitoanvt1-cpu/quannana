@@ -252,6 +252,7 @@ const profitData = {
     "Cá viên": 1263, "Hải sản sốt": 1250, "HS tẩm cốm": 876, "Tôm hình": 1044,
     "Nem chua rán": 1867, "Khoai lệ phố": 1867, "Xúc xích": 5400,
     "Dồi sụn": 5400, "Phô mai que": 4400, "Khoai tây lắc PM": 12726, "UP SIZE": 2500,
+    "Cookie phô mai": 4806, // ĐÃ THÊM MỚI
     "Trà sữa Truyền thống": { "Trân châu": 6482, "Fulltopping": 11801, "Sốt PM Dẻo": 12759 },
     "Trà sữa Thái xanh": { "Trân châu": 6849, "Fulltopping": 12168, "Sốt PM Dẻo": 13127 },
     "Trà sữa Olong": { "Trân châu": 6439, "Fulltopping": 11758, "Sốt PM Dẻo": 12717 },
@@ -276,14 +277,19 @@ const menuData = [
     { cat: "cat-trasua", name: "Trà sữa Olong", opts: [{s:"Trân châu",p:16000}, {s:"Sốt PM Dẻo",p:25000}, {s:"Fulltopping",p:25000}] },
     { cat: "cat-cafe", name: "Cà phê muối", opts: [{s:"M",p:15000}] },
     { cat: "cat-cafe", name: "Nâu lắc", opts: [{s:"M",p:15000}] },
-    { cat: "cat-cafe", name: "Ca cao sữa nóng", opts: [{s:"M",p:15000}] },
+    { cat: "cat-cafe", name: "Ca cao sữa nóng", opts: [{s:"M",p:20000}] },
     { cat: "cat-tra", name: "Trà tắc", opts: [{s:"M",p:13000}] },
     { cat: "cat-tra", name: "Trà chanh", opts: [{s:"M",p:13000}] },
 ];
 
 const toppings = [{name:"Jerry",price:7000},{name:"Chân mèo",price:6000},{name:"Bánh flan",price:7000},{name:"Topping khác",price:5000}];
 const friedItems = [{name:"Cá viên",price:3000},{name:"Hải sản sốt",price:3000},{name:"HS tẩm cốm",price:3000},{name:"Nem chua rán",price:5000},{name:"Khoai lệ phố",price:5000},{name:"Tôm hình",price:3000},{name:"Xúc xích",price:10000},{name:"Dồi sụn",price:10000},{name:"Phô mai que",price:10000}];
-const foodItems = [{name:"Mỳ trộn 15k", price:15000},{name:"Mỳ trộn 20k", price:20000},{name:"Khoai tây lắc PM", price:30000}];
+const foodItems = [
+    {name:"Mỳ trộn 15k", price:15000},
+    {name:"Mỳ trộn 20k", price:20000},
+    {name:"Khoai tây lắc PM", price:30000},
+    {name:"Cookie phô mai", price:15000} // ĐÃ THÊM MỚI
+];
 
 // --- XỬ LÝ DỮ LIỆU AN TOÀN (SAFE LOAD) ---
 let orders = {};
@@ -668,4 +674,3 @@ renderTables(); renderMenu(); updateNote();
 </script>
 </body>
 </html>
-
